@@ -2,5 +2,4 @@ dic/
 __pycache__/
 .ipynb_checkpoints/
 logs/
-data/spec/
 results/
