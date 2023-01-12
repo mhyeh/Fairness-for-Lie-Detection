@@ -22,14 +22,14 @@ In total, we have 159 features per statement. We save the Dataframe as a pickle 
 ## Formulate the Seldonian ML problem
 
 We consider four different definitions of fairness to apply to the problem of predicting whether statements are lies or not. The four definitions and their constraint strings are:
-1. Disparate impact: $\min((\mathrm{PR} | [\mathrm{democrat}])/(\mathrm{PR} | [\mathrm{republican}]),(\mathrm{PR} | [\mathrm{republican}])/(\mathrm{PR} | [\mathrm{democrat}])) \geq \epsilon$
-2. Equalized odds: $\min((\mathrm{FNR} | [\mathrm{democrat}])/(\mathrm{FNR} | [\mathrm{republican}]),(\mathrm{FNR} | [\mathrm{republican}])/(\mathrm{FNR} | [\mathrm{democrat}])) \geq \epsilon$
-3. Predictive equality: $\min((\mathrm{FPR} | [\mathrm{democrat}])/(\mathrm{FPR} | [\mathrm{republican}]),(\mathrm{FPR} | [\mathrm{republican}])/(\mathrm{FPR} | [\mathrm{democrat}])) \geq \epsilon$
-4. Overall accuracy equality: $\min((\mathrm{ACC} | [\mathrm{democrat}])/(\mathrm{ACC} | [\mathrm{republican}]),(\mathrm{ACC} | [\mathrm{republican}])/(\mathrm{ACC} | [\mathrm{democrat}])) \geq \epsilon$
+1. Disparate impact: $\min((\mathrm{PR} | [\mathrm{democrat}])/(\mathrm{PR} | [\mathrm{republican}]),(\mathrm{PR} | [\mathrm{republican}])/(\mathrm{PR} | [\mathrm{democrat}])) \geq (1-\epsilon)$
+2. Equalized odds: $\min((\mathrm{FNR} | [\mathrm{democrat}])/(\mathrm{FNR} | [\mathrm{republican}]),(\mathrm{FNR} | [\mathrm{republican}])/(\mathrm{FNR} | [\mathrm{democrat}])) \geq (1-\epsilon)$
+3. Predictive equality: $\min((\mathrm{FPR} | [\mathrm{democrat}])/(\mathrm{FPR} | [\mathrm{republican}]),(\mathrm{FPR} | [\mathrm{republican}])/(\mathrm{FPR} | [\mathrm{democrat}])) \geq (1-\epsilon)$
+4. Overall accuracy equality: $\min((\mathrm{ACC} | [\mathrm{democrat}])/(\mathrm{ACC} | [\mathrm{republican}]),(\mathrm{ACC} | [\mathrm{republican}])/(\mathrm{ACC} | [\mathrm{democrat}])) \geq (1-\epsilon)$
 
-We try 0.8, 0.9, 0.95 as different $\epsilon$, and apply each of these constraints independently, each with $\delta = 0.05$
+We try 0.2, 0.1, 0.05 as different $\epsilon$, and apply each of these constraints independently, each with $\delta = 0.05$
 
-\* Note: For Equalized odds, Predictive equality, and Overall accuracy equality, there are two ways of encoding $\epsilon$ in the formulas to quantify the amount of violations: ratio and difference. In our tutorial, we use the ratio between two probabilities as the quantifier. I.e., we consider $\min(\frac{p_A}{p_B},\frac{p_B}{p_A})\geq \epsilon$. However, one can also use the difference between two probabilities as the quantifier. I.e., $|p_A-p_B|\leq \epsilon$.
+\* Note: For Equalized odds, Predictive equality, and Overall accuracy equality, there are two ways of encoding $\epsilon$ in the formulas to quantify the amount of violations: ratio and difference. In our tutorial, we use the ratio between two probabilities as the quantifier, i.e., we consider $\min(\frac{p_A}{p_B},\frac{p_B}{p_A})\geq (1-\epsilon)$. However, one can also use the difference between two probabilities as the quantifier, i.e., $|p_A-p_B|\leq \epsilon$. Though both of these approaches for quantifying how unfair a model is in terms of the fairness constraint are viable, notice that they result in meaningful differences in what is determined to be fair or unfair. For example, says $p_A=0.8$, $p_B=0.81$, and $\epsilon=0.01$. Since $0.81-0.8=0.01$, the model is determined to be fair under the implementation with "difference." While under the implementation with "ratio", the model is determined to be unfair because $1-0.8/0.81\approx 0.012>0.01$. Furthermore, the units associated with epsilon differ for these two approaches, and one may be more natural to set for the application at hand.
 
 ## Creating the specification object
 
@@ -39,29 +39,29 @@ Running this code should print out that the 12 spec files have been created.
 
 ## Running a Seldonian Experiment
 
-In `generate_experiment_plot.py`, we run a Seldonian Experiment with a quasi-Seldonian model, a baseline logistic regression model, and a random classifier baseline model. The performance metric is accuracy. The code takes two inputs, the first one is the constraint name, which should be chosen from `['disparate_impact', 'predictive_equality', 'equal_opportunity', 'overall_accuracy_equality']`, and the second one is the $\epsilon$ chosen from `[0.8, 0.9, 0.95]`.
+In `generate_experiment_plot.py`, we run a Seldonian Experiment with a quasi-Seldonian model, a baseline logistic regression model, and a random classifier baseline model. The performance metric is accuracy. The code takes two inputs, the first one is the constraint name, which should be chosen from `['disparate_impact', 'predictive_equality', 'equal_opportunity', 'overall_accuracy_equality']`, and the second one is the $\epsilon$ chosen from `[0.2, 0.1, 0.05]`.
 
 Running the script for each constraint will produce the following plots:
 
-![disparate_impact_0.8](images/disparate_impact_0.8_accuracy.png)
-![disparate_impact_0.9](images/disparate_impact_0.9_accuracy.png)
-![disparate_impact_0.95](images/disparate_impact_0.95_accuracy.png)
-**Figure 1**: Seldonian Experiments using disparate impact as the definition of fairness. Each row is the result with a different $\epsilon$. From top to bottom: $\epsilon=0.8,0.9,0.95$. 
+![disparate_impact_0.2](images/disparate_impact_0.2_accuracy.png)
+![disparate_impact_0.1](images/disparate_impact_0.1_accuracy.png)
+![disparate_impact_0.05](images/disparate_impact_0.05_accuracy.png)
+**Figure 1**: Seldonian Experiments using disparate impact as the definition of fairness. Each row is the result with a different $\epsilon$. From top to bottom: $\epsilon=0.2,0.1,0.05$. 
 
-![predictive_equality_0.8](images/predictive_equality_0.8_accuracy.png)
-![predictive_equality_0.9](images/predictive_equality_0.9_accuracy.png)
-![predictive_equality_0.95](images/predictive_equality_0.95_accuracy.png)
-**Figure 2**: Seldonian Experiments using predictive equality as the definition of fairness. Each row is the result with a different $\epsilon$. From top to bottom: $\epsilon=0.8,0.9,0.95$.
+![predictive_equality_0.2](images/predictive_equality_0.2_accuracy.png)
+![predictive_equality_0.1](images/predictive_equality_0.1_accuracy.png)
+![predictive_equality_0.05](images/predictive_equality_0.05_accuracy.png)
+**Figure 2**: Seldonian Experiments using predictive equality as the definition of fairness. Each row is the result with a different $\epsilon$. From top to bottom: $\epsilon=0.2,0.1,0.05$.
 
-![equal_opportunity_0.8](images/equal_opportunity_0.8_accuracy.png)
-![equal_opportunity_0.9](images/equal_opportunity_0.9_accuracy.png)
-![equal_opportunity_0.95](images/equal_opportunity_0.95_accuracy.png)
-**Figure 3**: Seldonian Experiments using equal opportunity as the definition of fairness. Each row is the result with a different $\epsilon$. From top to bottom: $\epsilon=0.8,0.9,0.95$.
+![equal_opportunity_0.2](images/equal_opportunity_0.2_accuracy.png)
+![equal_opportunity_0.1](images/equal_opportunity_0.1_accuracy.png)
+![equal_opportunity_0.05](images/equal_opportunity_0.05_accuracy.png)
+**Figure 3**: Seldonian Experiments using equal opportunity as the definition of fairness. Each row is the result with a different $\epsilon$. From top to bottom: $\epsilon=0.2,0.1,0.05$.
 
-![overall_accuracy_equality_0.8](images/overall_accuracy_equality_0.8_accuracy.png)
-![overall_accuracy_equality_0.9](images/overall_accuracy_equality_0.9_accuracy.png)
-![overall_accuracy_equality_0.95](images/overall_accuracy_equality_0.95_accuracy.png)
-**Figure 4**: Seldonian Experiments using overall accuracy equality as the definition of fairness. Each row is the result with a different $\epsilon$. From top to bottom: $\epsilon=0.8,0.9,0.95$.
+![overall_accuracy_equality_0.2](images/overall_accuracy_equality_0.2_accuracy.png)
+![overall_accuracy_equality_0.1](images/overall_accuracy_equality_0.1_accuracy.png)
+![overall_accuracy_equality_0.05](images/overall_accuracy_equality_0.05_accuracy.png)
+**Figure 4**: Seldonian Experiments using overall accuracy equality as the definition of fairness. Each row is the result with a different $\epsilon$. From top to bottom: $\epsilon=0.2,0.1,0.05$.
 
 For each $\epsilon$ and the definition of fairness, a Seldonian Experiment creates three plots, accuracy (left), solution rate (middle), and failure rate (right). The colored points and bands in each panel show the mean standard error over 50 trials. We compare a logistic regression model learned with a quasi-Seldonian algorithm (qsa, blue) to a logistic regression baseline (orange) and a random classifier (green).
 

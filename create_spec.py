@@ -60,20 +60,20 @@ model = LogisticRegressionModel()
 
 # Behavioral constraints
 constraint_names = ['disparate_impact', 'predictive_equality', 'equal_opportunity', 'overall_accuracy_equality']
-epsilons = [0.8, 0.9, 0.95]
+epsilons = [0.2, 0.1, 0.05]
 deltas = [0.05]
 
 for constraint_name in constraint_names:
     for epsilon in epsilons:
         # Define behavioral constraints
         if constraint_name == 'disparate_impact':
-            constraint_strs = [f'min((PR | [democrat])/(PR | [republican]),(PR | [republican])/(PR | [democrat])) >= {epsilon}']
+            constraint_strs = [f'min((PR | [democrat])/(PR | [republican]),(PR | [republican])/(PR | [democrat])) >= {1-epsilon}']
         elif constraint_name == 'equal_opportunity':
-            constraint_strs = [f'min((FNR | [democrat])/(FNR | [republican]),(FNR | [republican])/(FNR | [democrat])) >= {epsilon}']
+            constraint_strs = [f'min((FNR | [democrat])/(FNR | [republican]),(FNR | [republican])/(FNR | [democrat])) >= {1-epsilon}']
         elif constraint_name == 'predictive_equality':
-            constraint_strs = [f'min((FPR | [democrat])/(FPR | [republican]),(FPR | [republican])/(FPR | [democrat])) >= {epsilon}']
+            constraint_strs = [f'min((FPR | [democrat])/(FPR | [republican]),(FPR | [republican])/(FPR | [democrat])) >= {1-epsilon}']
         elif constraint_name == 'overall_accuracy_equality':
-            constraint_strs = [f'min((ACC | [democrat])/(ACC | [republican]),(ACC | [republican])/(ACC | [democrat])) >= {epsilon}']
+            constraint_strs = [f'min((ACC | [democrat])/(ACC | [republican]),(ACC | [republican])/(ACC | [democrat])) >= {1-epsilon}']
 
         # For each constraint, make a parse tree
         parse_trees = make_parse_trees_from_constraints(
