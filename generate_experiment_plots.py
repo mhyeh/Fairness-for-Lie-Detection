@@ -19,7 +19,7 @@ verbose=False
 results_dir = f'results/lie_detection_{constraint_name}_{epsilon}_{performance_metric}'
 os.makedirs(results_dir,exist_ok=True)
 
-plot_savename = os.path.join(results_dir,f'{constraint_name}_{epsilon}_{performance_metric}.png')
+plot_savename = os.path.join(results_dir,f'{constraint_name}_{epsilon}_{performance_metric}.pdf')
 
 dataset = spec.dataset
 test_features = dataset.features
@@ -29,7 +29,8 @@ def perf_eval_fn(y_pred,y,**kwargs):
     if performance_metric == 'log_loss':
         return log_loss(y,y_pred)
     elif performance_metric == 'accuracy':
-        return accuracy_score(y,y_pred > 0.5)
+        v = np.where(y!=1.0,1.0-y_pred,y_pred)
+        return sum(v)/len(v)
 
 perf_eval_kwargs = {
     'X':test_features,
